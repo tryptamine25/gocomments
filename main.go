@@ -31,7 +31,7 @@ func main() {
 	var folderPath string
 	fmt.Scanln(&folderPath)
 
-	files, err := getTSFilesInFolder(folderPath)
+	files, err := getFilesInFolder(folderPath)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -93,13 +93,13 @@ func analyzeFileAsync(filePath string, wg *sync.WaitGroup, resultCh chan<- *File
 	}
 }
 
-func getTSFilesInFolder(folderPath string) ([]string, error) {
+func getFilesInFolder(folderPath string) ([]string, error) {
 	var files []string
 	err := filepath.Walk(folderPath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
-		if !info.IsDir() && !shouldExcludeDir(path) && (strings.HasSuffix(info.Name(), ".tsx") || strings.HasSuffix(info.Name(), ".ts")) {
+		if !info.IsDir() && !shouldExcludeDir(path) && (strings.HasSuffix(info.Name(), ".tsx") || strings.HasSuffix(info.Name(), ".ts") || strings.HasSuffix(info.Name(), ".js") || strings.HasSuffix(info.Name(), ".jsx")) {
 			files = append(files, path)
 		}
 		return nil
@@ -108,7 +108,7 @@ func getTSFilesInFolder(folderPath string) ([]string, error) {
 }
 
 func shouldExcludeDir(path string) bool {
-	excludedDirs := []string{"node_modules", "dist"}
+	excludedDirs := []string{"node_modules", "dist", "next"}
 	for _, dir := range excludedDirs {
 		if strings.Contains(path, dir) {
 			return true
